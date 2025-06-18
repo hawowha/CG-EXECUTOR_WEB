@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CG Executor</title>
+    <link rel="icon" href="icon.png" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for additional flair */
+        .hero-bg {
+            background: linear-gradient(135deg, #1e293b, #3b82f6);
+            position: relative;
+            overflow: hidden;
+        }
+        .download-btn, .discord-btn, .lang-btn {
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover, .discord-btn:hover, .lang-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            background-color: #2563eb;
+        }
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            position: relative;
+            z-index: 10;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">CG Executor</h1>
+            <ul class="flex space-x-6 ml-12">
+                <li><a href="https://discord.gg/y8EEMGgs" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white px-4 py-2 rounded-lg discord-btn">Discord Server</a></li>
+                <li>
+                    <button id="langToggle" class="bg-blue-600 text-white px-4 py-2 rounded-lg lang-btn">
+                        Switch to English
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-bg text-white py-20">
+        <canvas id="meteorCanvas"></canvas>
+        <div class="container mx-auto text-center hero-content">
+            <h2 id="welcomeText" class="text-4xl md:text-6xl font-bold mb-4">欢迎来到 CG Executor</h2>
+            <p id="sloganText" class="text-lg md:text-xl mb-6">使用 CG Executor 优化您的 Roblox 游戏体验</p>
+            <p id="authorText" class="text-lg md:text-xl mb-6">由 CC-程序猫 倾力打造</p>
+            <a id="downloadBtn" href="https://link-center.net/1345609/ScqVKppKup1k" target="_blank" rel="noopener noreferrer" class="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg download-btn">立即下载</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="bg-gray-800 py-16">
+        <div class="container mx-auto text-center">
+            <h3 id="featuresTitle" class="text-3xl font-bold mb-8">特点</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                    <h4 id="feature1Title" class="text-xl font-semibold mb-2">操作简便</h4>
+                    <p id="feature1Desc">CG Executor 提供直观的用户界面，适合所有玩家</p>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                    <h4 id="feature2Title" class="text-xl font-semibold mb-2">卓越的游戏体验</h4>
+                    <p id="feature2Desc">通过脚本增强您的 Roblox 游戏乐趣</p>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg">
+                    <h4 id="feature3Title" class="text-xl font-semibold mb-2">持续更新</h4>
+                    <p id="feature3Desc">与 Roblox 更新同步，确保工具始终兼容</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-center py-4 mt-8">
+        <p id="copyrightText">© 2025 CG Executor 版权所有 | 由 CC-程序猫 开发</p>
+        <p id="contactText" class="mt-2">如有疑问，请加入 <a href="https://discord.gg/y8EEMGgs" target="_blank" rel="noopener noreferrer" class="text-blue-400">Discord 社区</a></p>
+    </footer>
+
+    <script>
+        // Prevent default anchor behavior for external links
+        document.querySelectorAll('a[target="_blank"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.open(link.href, '_blank');
+            });
+        });
+
+        // Meteor shower effect
+        const canvas = document.getElementById('meteorCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = document.getElementById('home').offsetHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Meteor class
+        class Meteor {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = 0;
+                this.length = Math.random() * 40 + 20; // Length: 20 to 60
+                this.speed = Math.random() * 4 + 2; // Speed: 2 to 6
+                this.angle = Math.PI / 4; // 45 degrees for diagonal fall
+            }
+
+            update() {
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                if (this.y > canvas.height || this.x > canvas.width) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x - this.length * Math.cos(this.angle), this.y - this.length * Math.sin(this.angle));
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // Create meteors
+        const meteors = Array(100).fill().map(() => new Meteor());
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            meteors.forEach(meteor => {
+                meteor.update();
+                meteor.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Language toggle functionality
+        const langToggle = document.getElementById('langToggle');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const translations = {
+            zh: {
+                welcomeText: "欢迎来到 CG Executor",
+                sloganText: "使用 CG Executor 优化您的 Roblox 游戏体验",
+                authorText: "由 CC-程序猫 倾力打造",
+                featuresTitle: "特点",
+                feature1Title: "操作简便",
+                feature1Desc: "CG Executor 提供直观的用户界面，适合所有玩家",
+                feature2Title: "卓越的游戏体验",
+                feature2Desc: "通过脚本增强您的 Roblox 游戏乐趣",
+                feature3Title: "持续更新",
+                feature3Desc: "与 Roblox 更新同步，确保工具始终兼容",
+                copyrightText: "© 2025 CG Executor 版权所有 | 由 CC-程序猫 开发",
+                contactText: "如有疑问，请加入 <a href='https://discord.gg/y8EEMGgs' target='_blank' rel='noopener noreferrer' class='text-blue-400'>Discord 社区</a>",
+                langButton: "Switch to English",
+                discordLink: "Discord 服务器",
+                downloadText: "立即下载"
+            },
+            en: {
+                welcomeText: "Welcome to CG Executor",
+                sloganText: "Optimize your Roblox gaming experience with CG Executor",
+                authorText: "Made by CC-CodeCat",
+                featuresTitle: "Features",
+                feature1Title: "User-Friendly",
+                feature1Desc: "CG Executor offers an intuitive interface suitable for all players",
+                feature2Title: "Enhanced Gameplay",
+                feature2Desc: "Enhance your Roblox fun with powerful scripts",
+                feature3Title: "Regular Updates",
+                feature3Desc: "Synchronized with Roblox updates to ensure full compatibility",
+                copyrightText: "© 2025 CG Executor | All Rights Reserved | Developed by CC-CodeCat",
+                contactText: "For inquiries, join the <a href='https://discord.gg/y8EEMGgs' target='_blank' rel='noopener noreferrer' class='text-blue-400'>Discord community</a>",
+                langButton: "语言换去中文",
+                discordLink: "Discord Server",
+                downloadText: "Download Now"
+            }
+        };
+
+        let currentLang = 'zh';
+
+        function updateLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('welcomeText').textContent = translations[lang].welcomeText;
+            document.getElementById('sloganText').textContent = translations[lang].sloganText;
+            document.getElementById('authorText').textContent = translations[lang].authorText;
+            document.getElementById('featuresTitle').textContent = translations[lang].featuresTitle;
+            document.getElementById('feature1Title').textContent = translations[lang].feature1Title;
+            document.getElementById('feature1Desc').innerHTML = translations[lang].feature1Desc;
+            document.getElementById('feature2Title').textContent = translations[lang].feature2Title;
+            document.getElementById('feature2Desc').innerHTML = translations[lang].feature2Desc;
+            document.getElementById('feature3Title').textContent = translations[lang].feature3Title;
+            document.getElementById('feature3Desc').innerHTML = translations[lang].feature3Desc;
+            document.getElementById('copyrightText').innerHTML = translations[lang].copyrightText;
+            document.getElementById('contactText').innerHTML = translations[lang].contactText;
+            langToggle.textContent = translations[lang].langButton;
+            document.querySelector('.discord-btn').textContent = translations[lang].discordLink;
+            downloadBtn.textContent = translations[lang].downloadText;
+        }
+
+        langToggle.addEventListener('click', () => {
+            updateLanguage(currentLang === 'zh' ? 'en' : 'zh');
+        });
+
+        // Initialize with Chinese
+        updateLanguage('zh');
+    </script>
+</body>
+</html>
